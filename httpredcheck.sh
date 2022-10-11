@@ -28,7 +28,7 @@ OUTPUT_FILENAME="no-redirected-$dt.txt"
 while read p; do
     echo "Checking redirect for http://$p"
     echo "----"
-    curl --connect-timeout "$CONNECTION_TIMEOUT"  -ILs "http://$p" | if [ "$( grep -cE 'HTTP/1.0 200|HTTP/1.1 200|HTTP/2 200|HTTP/1.0 403|HTTP/1.1 403|HTTP/2 403' )" -ge 1 ] &&  [ ! "$( grep -cE 'HTTP/1.1 301 Moved|HTTP/1.1 302 Moved|HTTP/1.1 307 Temporary Redirect|HTTP/2 301 Moved|HTTP/2 302 Moved|HTTP/2 307 Temporary Redirect' )" -ge 1 ] ; then echo "http://$p" >> "$OUTPUT_FILENAME"; fi
+    curl --connect-timeout "$CONNECTION_TIMEOUT"  -ILs "http://$p" | if { ! grep -qE 'HTTP/1.0 301 Moved|HTTP/1.0 302 Moved|HTTP/1.0 307 Temporary Redirect|HTTP/1.1 301 Moved|HTTP/1.1 302 Moved|HTTP/1.1 307 Temporary Redirect|HTTP/2 301 Moved|HTTP/2 302 Moved|HTTP/2 307 Temporary Redirect'; } && { ! grep -qE 'HTTP/1.0 200|HTTP/1.1 200|HTTP/2 200|HTTP/1.0 403|HTTP/1.1 403|HTTP/2 403' ; } ; then echo "http://$p" >> "$OUTPUT_FILENAME"; fi
     echo "--------------------------------------------------------------"
 done <"$1"
 }
